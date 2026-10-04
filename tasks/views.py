@@ -91,7 +91,6 @@ def category_list(request):
 
 @login_required
 def priority_list(request):
-    # Filter by user if Priority model has a Foreign Key to User
     if hasattr(Priority, 'user'):
         priorities = Priority.objects.filter(user=request.user)
     else:
