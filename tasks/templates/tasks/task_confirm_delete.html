@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Task - Hangarin{% endblock %}
+
+{% block content %}
+<div style="background-color: #1a1d24; border: 1px solid #262a33; border-radius: 12px; padding: 25px; max-width: 500px; margin-top: 40px;">
+    <h4 style="color: #fff; font-weight: 600; margin-bottom: 12px;">Delete Task?</h4>
+    <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">
+        Are you sure you want to delete <strong style="color: #fff;">"{{ task.title }}"</strong>? This action cannot be undone.
+    </p>
+
+    <form method="POST" id="deleteForm">
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" style="background-color: #ef4444; border: none; padding: 8px 20px;">Yes, Delete</button>
+            <a href="{% url 'task_list' %}" class="btn btn-outline-secondary" style="color: #94a3b8; border-color: #262a33;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('deleteForm');
+        const submitBtn = document.getElementById('confirmDeleteBtn');
+        if (form && submitBtn) {
+            form.addEventListener('submit', function() {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Deleting...';
+            });
+        }
+    });
+</script>
+{% endblock %}

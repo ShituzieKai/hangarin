@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Hangarin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="font-weight: 700; color: #fff; margin: 0;">Dashboard</h2>
+        <p style="color: #64748b; margin: 4px 0 0 0; font-size: 14px;">Manage your tasks and stay organized.</p>
+    </div>
+    <a href="{% url 'task_create' %}" class="btn btn-primary" style="background-color: #2563eb; border: none; border-radius: 8px; padding: 8px 18px; font-weight: 500; transition: background-color 0.2s;">
+        + Add Task
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="title">Total Tasks</div>
+            <div class="value">{{ total_tasks }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="title">Pending</div>
+            <div class="value">{{ pending_tasks }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="title">Completed</div>
+            <div class="value">{{ completed_tasks }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 style="color: #fff; font-weight: 600; margin: 0;">Recent Tasks</h5>
+    {% if query %}
+        <a href="{% url 'task_list' %}" style="color: #2563eb; text-decoration: none; font-size: 13px;">Clear Search</a>
+    {% endif %}
+</div>
+
+<div id="tasksContainer">
+    {% for task in tasks %}
+    <div class="task-card flex-column align-items-start mb-3" data-task-id="{{ task.pk }}">
+        <div class="d-flex justify-content-between w-100 align-items-center mb-2">
+            <div>
+                <h6 class="task-title" style="color: #fff; font-weight: 600; margin-bottom: 4px;">{{ task.title }}</h6>
+                <p class="task-desc" style="color: #64748b; font-size: 13px; margin-bottom: 8px;">{{ task.description }}</p>
+                <div class="d-flex gap-2 align-items-center">
+                    {% if task.category %}<span class="badge-custom">{{ task.category.name }}</span>{% endif %}
+                    {% if task.priority %}<span class="badge-custom">{{ task.priority.name }}</span>{% endif %}
+                    {% if task.deadline %}<span style="color: #64748b; font-size: 12px; margin-left: 5px;">Due: {{ task.deadline|date:"M d, Y H:i" }}</span>{% endif %}
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge-status status-{% if task.status == 'In Progress' %}In-Progress{% else %}{{ task.status }}{% endif %}">{{ task.status }}</span>
+                <a href="{% url 'task_update' task.pk %}" class="action-btn" title="Edit Task"><i class="fa-solid fa-pen"></i></a>
+                <a href="{% url 'task_delete' task.pk %}" class="action-btn delete" title="Delete Task"><i class="fa-solid fa-trash"></i></a>
+            </div>
+        </div>
+
+        <div class="w-100 pt-3 mt-2" style="border-top: 1px solid #334155;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span style="color: #94a3b8; font-size: 13px; font-weight: 600;">
+                    <i class="fa-solid fa-list-check me-1"></i> Subtasks ({{ task.subtasks.count }})
+                </span>
+            </div>
+
+            {% for subtask in task.subtasks.all %}
+            <div class="d-flex align-items-center justify-content-between py-1 px-2 mb-1" style="background-color: #1e293b; border-radius: 6px;">
+                <a href="{% url 'toggle_subtask' subtask.id %}" class="{% if subtask.status == 'Completed' %}text-success text-decoration-line-through{% else %}text-light text-decoration-none{% endif %}" style="font-size: 13px;">
+                    <i class="fa-regular {% if subtask.status == 'Completed' %}fa-square-check{% else %}fa-square{% endif %} me-2"></i>
+                    <span>
+                        {{ subtask.title }}
+                    </span>
+                </a>
+                <a href="{% url 'delete_subtask' subtask.id %}" class="action-btn delete" style="padding: 2px 6px; font-size: 11px;" title="Delete Subtask">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+            </div>
+            {% empty %}
+            <p style="color: #64748b; font-size: 12px; margin-bottom: 8px;">No subtasks added yet.</p>
+            {% endfor %}
+
+            <form action="{% url 'add_subtask' task.id %}" method="POST" class="d-flex gap-2 mt-2">
+                {% csrf_token %}
+                <input type="text" name="subtask_title" placeholder="+ Add subtask..." required class="form-control" style="background-color: #0f172a; border: 1px solid #334155; color: #fff; font-size: 12px; padding: 4px 10px; border-radius: 6px;">
+                <button type="submit" class="btn btn-sm btn-primary" style="background-color: #2563eb; border: none; font-size: 12px; padding: 4px 12px; border-radius: 6px;">Add</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div class="task-card text-center py-4">
+        <p style="color: #64748b; margin: 0; width: 100%;">No tasks found.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div id="emptySearchNotice" class="task-card text-center py-4" style="display: none;">
+    <p style="color: #64748b; margin: 0; width: 100%;">No matching tasks found on this page.</p>
+</div>
+
+{% endblock %}

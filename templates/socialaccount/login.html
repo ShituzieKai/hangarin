@@ -1,0 +1,42 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Confirm Login - Hangarin</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--bg-main);
+        }
+        .auth-card {
+            max-width: 440px;
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <h4 class="mb-3 font-weight-bold">Confirm Sign In</h4>
+        <p class="text-secondary mb-4">You are about to sign in using your <strong>{{ provider.name }}</strong> account.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary w-100 mb-3 py-2">Continue with {{ provider.name }}</button>
+        </form>
+        <a href="{% url 'account_login' %}" class="action-btn d-block text-center">Cancel</a>
+    </div>
+</body>
+</html>

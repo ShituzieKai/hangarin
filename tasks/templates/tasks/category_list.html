@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Categories - Hangarin{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 style="font-weight: 700; color: var(--text-primary); margin: 0;">Categories</h2>
+</div>
+
+<div class="row g-3">
+    {% for category in categories %}
+    <div class="col-md-6">
+        <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 style="color: var(--text-primary); margin: 0; font-weight: 600;">
+                    <i class="fa-solid fa-folder me-2" style="color: var(--accent-cyan);"></i>{{ category.name }}
+                </h5>
+            </div>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                {% for task in category.tasks.all %}
+                <li style="padding: 8px 0; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); font-size: 14px;" class="d-flex justify-content-between">
+                    <span>{{ task.title }}</span>
+                    <span class="badge-status status-{% if task.status == 'In Progress' %}In-Progress{% else %}{{ task.status }}{% endif %}">{{ task.status }}</span>
+                </li>
+                {% empty %}
+                <li style="color: var(--text-muted); font-size: 13px;">No tasks assigned to this category.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

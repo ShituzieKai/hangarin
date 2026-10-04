@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Hangarin{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 style="font-weight: 700; color: var(--text-primary); margin: 0;">{{ title }}</h2>
+    <p style="color: var(--text-secondary); margin: 4px 0 0 0; font-size: 14px;">Fill in the details below to manage your task.</p>
+</div>
+
+<div style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 28px; max-width: 650px;">
+    <form method="POST" id="taskForm">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label style="color: var(--text-secondary); font-size: 14px; font-weight: 500; margin-bottom: 6px; display: block;">Title</label>
+            <input type="text" name="title" value="{{ form.title.value|default:'' }}" class="form-control" required id="id_title" placeholder="Task title...">
+        </div>
+
+        <div class="mb-3">
+            <label style="color: var(--text-secondary); font-size: 14px; font-weight: 500; margin-bottom: 6px; display: block;">Description</label>
+            <textarea name="description" rows="3" class="form-control" id="id_description" placeholder="Task description...">{{ form.description.value|default:'' }}</textarea>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label style="color: var(--text-secondary); font-size: 14px; font-weight: 500; margin-bottom: 6px; display: block;">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">-- Select Category --</option>
+                    {% for choice in form.category.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if form.category.value == choice.pk %}selected{% endif %}>{{ choice.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label style="color: var(--text-secondary); font-size: 14px; font-weight: 500; margin-bottom: 6px; display: block;">Priority</label>
+                <select name="priority" class="form-select">
+                    <option value="">-- Select Priority --</option>
+                    {% for choice in form.priority.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if form.priority.value == choice.pk %}selected{% endif %}>{{ choice.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label style="color: var(--text-secondary); font-size: 14px; font-weight: 500; margin-bottom: 6px; display: block;">Status</label>
+                <select name="status" class="form-select">
+                    {% for key, val in form.status.field.choices %}
+                        <option value="{{ key }}" {% if form.status.value == key %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label style="color: var(--text-secondary); font-size: 14px; font-weight: 500; margin-bottom: 6px; display: block;">Deadline</label>
+                {{ form.deadline }}
+            </div>
+        </div>
+
+        <hr style="border-color: var(--border-color); margin: 25px 0;">
+
+        <div class="mb-4">
+            <h4 style="font-weight: 600; color: var(--text-primary); font-size: 16px; margin-bottom: 15px;">Subtasks</h4>
+            
+            {{ formset.management_form }}
+            
+            {% for subform in formset %}
+                {% for hidden in subform.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                
+                <div class="row g-2 mb-2 align-items-center">
+                    <div class="col-8">
+                        <input type="text" name="{{ subform.title.html_name }}" value="{{ subform.title.value|default:'' }}" class="form-control" placeholder="Subtask title...">
+                    </div>
+                    <div class="col-4">
+                        <select name="{{ subform.status.html_name }}" class="form-select">
+                            {% for key, val in subform.status.field.choices %}
+                                <option value="{{ key }}" {% if subform.status.value == key %}selected{% endif %}>{{ val }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+            <a href="{% url 'task_list' %}" class="action-btn" style="padding: 9px 18px; font-size: 14px; font-weight: 600;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('taskForm');
+        const submitBtn = document.getElementById('saveTaskBtn');
+        if (form && submitBtn) {
+            form.addEventListener('submit', function() {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Saving...';
+            });
+        }
+    });
+</script>
+{% endblock %}
